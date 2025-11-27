@@ -1,14 +1,15 @@
-FROM alpine:latest
+FROM debian:stable-slim
 
-RUN apk update && apk add --no-cache curl unzip
+RUN apt update && \
+    apt install -y wget unzip && \
+    mkdir -p /app && \
+    cd /app && \
+    wget -O v2ray.zip https://github.com/v2fly/v2ray-core/releases/latest/download/v2ray-linux-64.zip && \
+    unzip v2ray.zip && \
+    rm v2ray.zip
 
-# Xray indirme
-RUN curl -L -o xray.zip https://github.com/XTLS/Xray-core/releases/latest/download/Xray-linux-64.zip \
-    && unzip xray.zip -d /usr/local/xray \
-    && rm xray.zip
+COPY config.json /app/config.json
 
-COPY config.json /etc/xray/config.json
+EXPOSE 80
 
-EXPOSE 8080
-
-CMD ["/usr/local/xray/xray", "-config=/etc/xray/config.json"]
+CMD ["/app/v2ray", "-config=/app/config.json"]
